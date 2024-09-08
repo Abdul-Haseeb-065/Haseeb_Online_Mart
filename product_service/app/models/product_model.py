@@ -32,17 +32,6 @@ class ProductItemFormModel(ProductItemBase):
 class ProductFormModel(ProductBase):
     product_items: List[ProductItemFormModel]
 
-class Category(SQLModel, table=True):
-    category_id: Optional[int] = Field(None, primary_key=True)
-    category_name: str
-
-class Gender(SQLModel, table=True):
-    gender_id: Optional[int] = Field(None, primary_key=True)
-    gender_name: str
-   
-class Size(SQLModel, table=True):
-    size_id: Optional[int] = Field(primary_key=True)
-    size: str 
 
 class Product(ProductBase, table=True):
     product_id: Optional[int] = Field(default=None, primary_key=True) 
