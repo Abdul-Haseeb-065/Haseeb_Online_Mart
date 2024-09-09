@@ -22,10 +22,8 @@ def add_cart_item_func(cart_details: CartModel, session: DB_SESSION):
         ).one_or_none()
 
         if cart_item:
-            # If the item already exists in the cart, update the quantity
             cart_item.quantity += cart_details.quantity
         else:
-            # If the item is not in the cart, add a new CartItem
             cart_item = CartItem(
                 cart_id=cart_by_user.cart_id,
                 product_item_id=cart_details.product_item_id,
