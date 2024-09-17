@@ -1,18 +1,14 @@
 from fastapi import HTTPException
 from sqlmodel import select
+from app.models.cart_models import Cart, CartItem, CartModel, CartUpdateModel # type: ignore
+from app.main import DB_SESSION # type: ignore
 
-from app.models.cart_models import Cart, CartItem, CartModel, CartUpdateModel
-from app.db.db_connector import DB_SESSION
 
-
-# add product in cart:
 def add_cart_item_func(cart_details: CartModel, session: DB_SESSION):
-    # Check if the cart exists for the user
     cart_by_user = session.exec(select(Cart).where(
         Cart.user_id == cart_details.user_id)).one_or_none()
 
     if cart_by_user:
-        # Check if the product size is already in the cart
         cart_item = session.exec(
             select(CartItem)
             .where(
@@ -32,7 +28,6 @@ def add_cart_item_func(cart_details: CartModel, session: DB_SESSION):
             )
             session.add(cart_item)
     else:
-        # If no cart exists for the user, create a new cart with the item
         cart_item = CartItem(
             product_item_id=cart_details.product_item_id,
             product_size_id=cart_details.product_size_id,
@@ -53,8 +48,7 @@ def update_cart_item_func(cart_details: CartUpdateModel, session: DB_SESSION):
     if not cart_item:
         raise HTTPException(status_code=404, detail="Cart Item not found.")
     if cart_details.quantity <= 0:
-        raise HTTPException(status_code=400, detail="Quantity must be a positive integer.")
-    cart_item.quantity = cart_details.quantity
+        raise HTTPException(status_code=400, detail="Please add quantity ")
     session.add(cart_item)
     session.commit()
     session.refresh(cart_item)
@@ -78,7 +72,7 @@ def get_cart_details_func(user_id: int, session: DB_SESSION):
         Cart.user_id == user_id)).one_or_none()
     if not cart_by_user or not (len(cart_by_user.cart_items) > 0):
         raise HTTPException(
-            status_code=404, detail="You have no cart items.")
+            status_code=404, detail="You have an empty cart.")
     cart_items = [cart_item.model_dump(exclude_unset=True)
                   for cart_item in cart_by_user.cart_items]
     return {

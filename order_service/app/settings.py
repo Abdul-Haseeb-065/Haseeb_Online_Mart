@@ -19,3 +19,6 @@ AWS_REGION = config.get("AWS_REGION")
 BUCKET_NAME = config.get("BUCKET_NAME")
 AWS_ACCESS_KEY = config.get("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = config.get("AWS_SECRET_KEY")
+
+
+ORDER_TOPIC = config.get("ORDER_TOPIC")

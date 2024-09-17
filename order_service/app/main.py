@@ -3,6 +3,7 @@ from sqlmodel import create_engine, SQLModel, Session, Field
 from typing import Annotated, Optional, AsyncGenerator
 from contextlib import asynccontextmanager
 from settings import DATABASE_URL
+from app.api import order_api, cart_api # type: ignore
 import asyncio
 
 
@@ -46,8 +47,6 @@ def home():
     return "Welcome to User service"
 
 
-app.include_router(router=user_api.user_routes,
-                    tags=["Users"])
-app.include_router(router=admin_api.admin_route,
-                    tags=["Admin"])
+app.include_router(router=cart_api.cart_router,tags=["Cart"])
+app.include_router(router=order_api.order_router, tags=["Order"])
 

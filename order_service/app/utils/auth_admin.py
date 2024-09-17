@@ -4,16 +4,16 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from jose.exceptions import JWTError
 from sqlmodel import select
-from app.settings import SECRET_KEY, ADMIN_SECRET_KEY
-from app.db.db_connector import DB_SESSION
-from app.models.authorization_model import Admin
+from app.settings import SECRET_KEY, ADMIN_SECRET_KEY, ALGORITHM
+from app.main import DB_SESSION
+from app.models.payment_auth_models import Admin
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def decode_jwt(token: str):
     try:
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        decoded = jwt.decode(token, SECRET_KEY, ALGORITHM)
         return decoded
     except JWTError:
         raise HTTPException(
@@ -25,8 +25,10 @@ def admin_required(token: Annotated[str, Depends(oauth2_scheme)], session: DB_SE
     admin_secret = headers.get("secret")
     admin_kid = headers.get("kid")
     payload = decode_jwt(token)
-    admin = session.exec(select(Admin).where(Admin.admin_name == payload.get(
-        "admin_name")).where(Admin.admin_email == payload.get("admin_email")).where(Admin.admin_kid == admin_kid)).one_or_none()
+    admin = session.exec(select(Admin)
+    .where(Admin.admin_name == payload.get("admin_name"))
+    .where(Admin.admin_email == payload.get("admin_email"))
+    .where(Admin.admin_kid == admin_kid)).one_or_none()
     print(admin)
     print(admin_secret)
     

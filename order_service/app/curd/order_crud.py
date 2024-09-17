@@ -7,6 +7,7 @@ from app.models.payment_auth_models import PaymentDetails# type: ignore
 from app.models.order_models import OrderItem, OrderModel, Order, Product, ProductSize# type: ignore
 from app.curd.order_components import (get_product_and_size, handle_booking_order, handle_ready_made_order, validate_stock, create_order_item, get_user)# type: ignore
 from app.main import DB_SESSION# type: ignore
+from app.settings import ORDER_TOPIC # type: ignore
 from app.utils.kafka_producers import KAFKA_PRODUCER# type: ignore
 
 
@@ -39,13 +40,11 @@ async def create_order_func(order_details: OrderModel, payment_model: PaymentDet
             item = create_order_item(order_item, product)
             ready_made_orders_total_price += product_size.price * order_item.quantity
             ready_made_orders.append(item)
-    # Handle booking orders
     if len(booking_orders) > 0:
         print(f"Booking Orders: {booking_orders}")
         await handle_booking_order(booking_orders, booking_orders_total_price, booking_orders_advance_price,
                                    user, order_details, payment_model, payment_details, session, order_responses, producer)
 
-    # Handle ready-made orders
     if len(ready_made_orders) > 0:
         print(f"Ready made Orders:{ready_made_orders}")
         await handle_ready_made_order(ready_made_orders, ready_made_orders_total_price, user,
@@ -57,8 +56,7 @@ async def create_order_func(order_details: OrderModel, payment_model: PaymentDet
         raise HTTPException(
             status_code=400, detail="No valid order items found.")
 
-    # Produce message to Notification service to notify user about creating order
-    await producer.send_and_wait(value=json.dumps({"order_responses": order_responses}).encode("utf-8"), topic="notification_topic")
+    await producer.send_and_wait(value=json.dumps({"order_responses": order_responses}).encode("utf-8"), topic=ORDER_TOPIC)
 
     return "Your order has been successfully created."
 
@@ -70,12 +68,10 @@ def read_all_order_func(session: DB_SESSION):
     orders = session.exec(select(Order)).all()
     return orders
 
-
 def read_orders_by_user_func(user_id: int, session: DB_SESSION):
     order_by_user = session.exec(
         select(Order).where(Order.user_id == user_id)).all()
     return order_by_user
-
 
 def read_specific_product_orders_func(product_id: int, session: DB_SESSION):
     product_orders = []
