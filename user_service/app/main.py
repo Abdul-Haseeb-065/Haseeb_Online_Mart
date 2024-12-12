@@ -9,6 +9,9 @@ from .curd.users_curd import hash_password, get_db, UserCreate# type: ignore
 from app.utils.user_producer import produce_user_registered# type: ignore
 from app.api import admin_api, user_api # type: ignore
 import asyncio
+
+
+
 connection_string = str(DATABASE_URL).replace(
     "postgresql", "postgresql+psycopg"
 )

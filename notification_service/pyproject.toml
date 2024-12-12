@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "Inventory Service"
+name = "Notification Service"
 version = "0.1.0"
 description = ""
 authors = ["Abdul Haseeb <abdulhaseeb065@gmail.com>"]
